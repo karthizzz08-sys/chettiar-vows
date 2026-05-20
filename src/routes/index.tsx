@@ -1,26 +1,41 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { HeroSection } from "@/components/HeroSection";
+import { FeaturedProfiles } from "@/components/FeaturedProfiles";
+import { SuccessStories } from "@/components/SuccessStories";
+import { MembershipPlans } from "@/components/MembershipPlans";
+import { SangamHighlight } from "@/components/SangamHighlight";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Chettiar Connect — Trusted Tamil Chettiar Matrimony" },
+      {
+        name: "description",
+        content:
+          "Find your perfect life partner within the Tamil Chettiar community. 50,000+ verified profiles, traditional values, modern matchmaking. Free to join.",
+      },
+      { property: "og:title", content: "Chettiar Connect — Tamil Chettiar Matrimony" },
+      { property: "og:description", content: "Sacred bonds, woven in gold. Trusted Chettiar matrimony platform." },
+      { property: "og:type", content: "website" },
+    ],
+  }),
+  component: HomePage,
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
+function HomePage() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-cream">
+      <Navbar />
+      <main>
+        <HeroSection />
+        <FeaturedProfiles />
+        <SuccessStories />
+        <SangamHighlight />
+        <MembershipPlans />
+      </main>
+      <Footer />
     </div>
   );
-}
-
-function Index() {
-  return <PlaceholderIndex />;
 }
