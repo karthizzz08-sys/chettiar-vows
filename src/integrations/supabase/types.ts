@@ -14,7 +14,174 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      interests: {
+        Row: {
+          created_at: string
+          id: string
+          receiver_id: string
+          sender_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          receiver_id: string
+          sender_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          receiver_id?: string
+          sender_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      profile_photos: {
+        Row: {
+          created_at: string
+          id: string
+          is_primary: boolean
+          order_index: number
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          order_index?: number
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          order_index?: number
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          about: string | null
+          city: string | null
+          community: string | null
+          created_at: string
+          district: string | null
+          dob: string | null
+          education: string | null
+          email: string | null
+          expectations: string | null
+          family_details: string | null
+          full_name: string | null
+          gender: string | null
+          height_cm: number | null
+          horoscope_url: string | null
+          is_verified: boolean
+          phone: string | null
+          plan: string
+          profession: string | null
+          profile_completion: number
+          salary_range: string | null
+          state: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          about?: string | null
+          city?: string | null
+          community?: string | null
+          created_at?: string
+          district?: string | null
+          dob?: string | null
+          education?: string | null
+          email?: string | null
+          expectations?: string | null
+          family_details?: string | null
+          full_name?: string | null
+          gender?: string | null
+          height_cm?: number | null
+          horoscope_url?: string | null
+          is_verified?: boolean
+          phone?: string | null
+          plan?: string
+          profession?: string | null
+          profile_completion?: number
+          salary_range?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          about?: string | null
+          city?: string | null
+          community?: string | null
+          created_at?: string
+          district?: string | null
+          dob?: string | null
+          education?: string | null
+          email?: string | null
+          expectations?: string | null
+          family_details?: string | null
+          full_name?: string | null
+          gender?: string | null
+          height_cm?: number | null
+          horoscope_url?: string | null
+          is_verified?: boolean
+          phone?: string | null
+          plan?: string
+          profession?: string | null
+          profile_completion?: number
+          salary_range?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      saved_profiles: {
+        Row: {
+          created_at: string
+          profile_user_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          profile_user_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          profile_user_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      visitors: {
+        Row: {
+          id: string
+          profile_user_id: string
+          visited_at: string
+          visitor_id: string
+        }
+        Insert: {
+          id?: string
+          profile_user_id: string
+          visited_at?: string
+          visitor_id: string
+        }
+        Update: {
+          id?: string
+          profile_user_id?: string
+          visited_at?: string
+          visitor_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,11 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Menu, X, Heart } from "lucide-react";
+import { Menu, X, Heart, LayoutDashboard } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function Navbar() {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -79,18 +81,29 @@ export function Navbar() {
             >
               {i18n.language?.startsWith("ta") ? "EN" : "தமிழ்"}
             </button>
-            <Link
-              to="/login"
-              className="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-maroon hover:text-maroon-deep"
-            >
-              {t("nav.login")}
-            </Link>
-            <Link
-              to="/register"
-              className="hidden sm:inline-flex items-center px-5 py-2.5 text-sm font-semibold rounded-full bg-gradient-royal text-cream shadow-maroon hover:shadow-gold transition"
-            >
-              {t("nav.register")}
-            </Link>
+            {user ? (
+              <Link
+                to="/dashboard"
+                className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-full bg-gradient-royal text-cream shadow-maroon hover:shadow-gold transition"
+              >
+                <LayoutDashboard className="h-4 w-4" /> Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-maroon hover:text-maroon-deep"
+                >
+                  {t("nav.login")}
+                </Link>
+                <Link
+                  to="/register"
+                  className="hidden sm:inline-flex items-center px-5 py-2.5 text-sm font-semibold rounded-full bg-gradient-royal text-cream shadow-maroon hover:shadow-gold transition"
+                >
+                  {t("nav.register")}
+                </Link>
+              </>
+            )}
             <button
               className="lg:hidden p-2 text-maroon"
               onClick={() => setOpen((v) => !v)}
@@ -122,20 +135,32 @@ export function Navbar() {
                 </Link>
               ))}
               <div className="pt-2 flex gap-2">
-                <Link
-                  to="/login"
-                  onClick={() => setOpen(false)}
-                  className="flex-1 text-center px-4 py-2.5 rounded-full border border-maroon/30 text-maroon"
-                >
-                  {t("nav.login")}
-                </Link>
-                <Link
-                  to="/register"
-                  onClick={() => setOpen(false)}
-                  className="flex-1 text-center px-4 py-2.5 rounded-full bg-gradient-royal text-cream font-semibold"
-                >
-                  {t("nav.register")}
-                </Link>
+                {user ? (
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setOpen(false)}
+                    className="flex-1 text-center px-4 py-2.5 rounded-full bg-gradient-royal text-cream font-semibold"
+                  >
+                    Dashboard
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      onClick={() => setOpen(false)}
+                      className="flex-1 text-center px-4 py-2.5 rounded-full border border-maroon/30 text-maroon"
+                    >
+                      {t("nav.login")}
+                    </Link>
+                    <Link
+                      to="/register"
+                      onClick={() => setOpen(false)}
+                      className="flex-1 text-center px-4 py-2.5 rounded-full bg-gradient-royal text-cream font-semibold"
+                    >
+                      {t("nav.register")}
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
