@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -9,15 +9,17 @@ import {
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { Toaster } from "sonner";
 
 import "@/i18n";
 import appCss from "../styles.css?url";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   const { t, i18n } = useTranslation();
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-cream px-4">
-      {/* Animated gold glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 h-72 w-72 rounded-full bg-saffron/30 blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-maroon/20 blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
@@ -127,17 +129,36 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function AuthInvalidator() {
+  const router = useRouter();
+  const qc = useQueryClient();
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      router.invalidate();
+      qc.invalidateQueries();
+    });
+    return () => subscription.unsubscribe();
+  }, [router, qc]);
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const { i18n } = useTranslation();
 
   useEffect(() => {
-    document.documentElement.lang = i18n.language?.startsWith("ta") ? "ta" : "en";
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = i18n.language?.startsWith("ta") ? "ta" : "en";
+    }
   }, [i18n.language]);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <AuthProvider>
+        <AuthInvalidator />
+        <Outlet />
+        <Toaster position="top-center" richColors closeButton />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
