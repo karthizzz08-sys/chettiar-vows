@@ -80,14 +80,15 @@ function RegisterPage() {
   };
 
   const handleOtpVerified = (user: any, session: any) => {
-    if (session && user) {
+    // Session might be null if OTP was verified but user account is being created
+    if (user && user.email) {
       setOtpVerified(true);
-      setVerifiedEmail(user.email || email.trim().toLowerCase());
+      setVerifiedEmail(user.email);
       setVerifiedName(name.trim());
       setOtpOpen(false);
       toast.success("Email verified! Now complete your profile.");
     } else {
-      toast.error("Verification failed");
+      toast.error("Verification failed: No user data returned");
     }
   };
 
@@ -210,6 +211,7 @@ function RegisterPage() {
       <Footer />
       <OtpModal
         email={email.trim().toLowerCase()}
+        name={name.trim()}
         open={otpOpen}
         onClose={() => setOtpOpen(false)}
         onVerified={handleOtpVerified}

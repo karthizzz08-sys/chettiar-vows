@@ -7,6 +7,7 @@ import { sendOtp, verifyOtpAndSignIn } from "@/lib/auth.functions";
 
 interface Props {
   email: string;
+  name?: string;
   open: boolean;
   onClose: () => void;
   onVerified: (user: any, session: any) => void;
@@ -14,12 +15,12 @@ interface Props {
 
 const OTP_LENGTH = 6;
 
-export function OtpModal({ email, open, onClose, onVerified }: Props) {
+export function OtpModal({ email, name, open, onClose, onVerified }: Props) {
   const [digits, setDigits] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
   const [cooldown, setCooldown] = useState(30);
-  const [expiresIn, setExpiresIn] = useState(600); // 10 minutes
+  const [expiresIn, setExpiresIn] = useState(300); // 5 minutes (OTP now expires in 5min)
   const inputs = useRef<Array<HTMLInputElement | null>>([]);
   const sendOtpFn = useServerFn(sendOtp);
   const verifyOtpFn = useServerFn(verifyOtpAndSignIn);
@@ -28,7 +29,7 @@ export function OtpModal({ email, open, onClose, onVerified }: Props) {
     if (!open) return;
     setDigits(Array(OTP_LENGTH).fill(""));
     setCooldown(30);
-    setExpiresIn(600);
+    setExpiresIn(300); // 5 minutes
     setTimeout(() => inputs.current[0]?.focus(), 100);
   }, [open]);
 
@@ -94,10 +95,13 @@ export function OtpModal({ email, open, onClose, onVerified }: Props) {
     if (cooldown > 0) return;
     setResending(true);
     try {
-      await sendOtpFn({ email });
+      await sendOtpFn({
+        email,
+        name: name || "User",
+      });
       toast.success("New code sent");
       setCooldown(30);
-      setExpiresIn(600);
+      setExpiresIn(300);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to resend");
     } finally {
