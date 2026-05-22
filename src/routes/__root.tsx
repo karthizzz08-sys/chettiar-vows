@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { Toaster } from "sonner";
 
@@ -15,6 +15,10 @@ import "@/i18n";
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { EnvConfigDebugger } from "@/components/EnvConfigDebugger";
+import { initializeClientSide } from "@/lib/hydration";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function NotFoundComponent() {
   const { t, i18n } = useTranslation();
@@ -150,15 +154,33 @@ function RootComponent() {
     if (typeof document !== "undefined") {
       document.documentElement.lang = i18n.language?.startsWith("ta") ? "ta" : "en";
     }
+    initializeClientSide();
   }, [i18n.language]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <AuthInvalidator />
-        <Outlet />
-        <Toaster position="top-center" richColors closeButton />
-      </AuthProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AuthInvalidator />
+          <Suspense fallback={<RootSuspenseFallback />}>
+            <Outlet />
+          </Suspense>
+          <Toaster position="top-center" richColors closeButton />
+          <EnvConfigDebugger />
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+}
+
+function RootSuspenseFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-cream">
+      <div className="max-w-md w-full space-y-4">
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    </div>
   );
 }

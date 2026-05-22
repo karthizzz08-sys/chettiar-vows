@@ -75,4 +75,79 @@ export const en = {
     message: "The path you sought is not woven into our tapestry.",
     home: "Return Home",
   },
+  registration: {
+    title: "Complete Your Profile",
+    subtitle: "Tell us about yourself. This helps us find your perfect match.",
+    breadcrumb: "Step {current} of {total}",
+    // Basic Info
+    firstName: "First Name",
+    lastName: "Last Name",
+    gender: "Gender",
+    dateOfBirth: "Date of Birth",
+    bride: "Bride",
+    groom: "Groom",
+    // Physical
+    height: "Height",
+    heightPlaceholder: "e.g., 5'10\" or 178 cm",
+    // Location
+    city: "City",
+    district: "District",
+    state: "State",
+    country: "Country",
+    // Professional
+    education: "Education",
+    profession: "Profession",
+    salary: "Annual Salary Range",
+    educationOptions: {
+      diploma: "Diploma",
+      bachelors: "Bachelor's Degree",
+      masters: "Master's Degree",
+      phd: "PhD",
+      professional: "Professional Degree",
+    },
+    salaryOptions: {
+      below: "Below 25 Lakhs",
+      medium: "25L - 50L",
+      high: "50L - 1Cr",
+      veryHigh: "Above 1 Crore",
+    },
+    // Community
+    community: "Community",
+    // Contact
+    email: "Email Address",
+    phoneNumber: "Phone Number",
+    // Personal
+    aboutMe: "About Me",
+    aboutMePlaceholder: "Tell us about yourself in 10-500 characters...",
+    // Family
+    fatherName: "Father's Name",
+    motherName: "Mother's Name",
+    brothers: "Number of Brothers",
+    sisters: "Number of Sisters",
+    familyStatus: "Family Status",
+    familyValues: "Family Values",
+    // Expectations
+    expectation: "Partner Expectations",
+    expectationAge: "Age Range",
+    expectationHeight: "Height Preference",
+    expectationEducation: "Education Preference",
+    expectationProfession: "Profession Preference",
+    expectationCommunity: "Same Community Preferred",
+    expectationMin: "Minimum",
+    expectationMax: "Maximum",
+    // Agreement
+    agreedToTerms: "I agree to the Terms and Conditions",
+    agreedToPrivacy: "I agree to the Privacy Policy",
+    // Actions
+    next: "Next",
+    previous: "Previous",
+    submit: "Complete Registration",
+    submitting: "Submitting...",
+    cancel: "Cancel",
+    // Messages
+    required: "This field is required",
+    loading: "Loading...",
+    success: "Profile created successfully!",
+    error: "Failed to complete registration. Please try again.",
+  },
 };

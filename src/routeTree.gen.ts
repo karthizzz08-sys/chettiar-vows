@@ -17,6 +17,7 @@ import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiSendOtpRouteImport } from './routes/api/send-otp'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDashboardProfileRouteImport } from './routes/_authenticated/dashboard.profile'
 
@@ -59,6 +60,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSendOtpRoute = ApiSendOtpRouteImport.update({
+  id: '/api/send-otp',
+  path: '/api/send-otp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/sangam': typeof SangamRoute
   '/stories': typeof StoriesRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/api/send-otp': typeof ApiSendOtpRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
 }
 export interface FileRoutesByTo {
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/sangam': typeof SangamRoute
   '/stories': typeof StoriesRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/api/send-otp': typeof ApiSendOtpRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
 }
 export interface FileRoutesById {
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/sangam': typeof SangamRoute
   '/stories': typeof StoriesRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/api/send-otp': typeof ApiSendOtpRoute
   '/_authenticated/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
 }
 export interface FileRouteTypes {
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/sangam'
     | '/stories'
     | '/dashboard'
+    | '/api/send-otp'
     | '/dashboard/profile'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/sangam'
     | '/stories'
     | '/dashboard'
+    | '/api/send-otp'
     | '/dashboard/profile'
   id:
     | '__root__'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/sangam'
     | '/stories'
     | '/_authenticated/dashboard'
+    | '/api/send-otp'
     | '/_authenticated/dashboard/profile'
   fileRoutesById: FileRoutesById
 }
@@ -152,6 +164,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   SangamRoute: typeof SangamRoute
   StoriesRoute: typeof StoriesRoute
+  ApiSendOtpRoute: typeof ApiSendOtpRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/send-otp': {
+      id: '/api/send-otp'
+      path: '/api/send-otp'
+      fullPath: '/api/send-otp'
+      preLoaderRoute: typeof ApiSendOtpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -264,6 +284,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   SangamRoute: SangamRoute,
   StoriesRoute: StoriesRoute,
+  ApiSendOtpRoute: ApiSendOtpRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -75,4 +75,79 @@ export const ta = {
     message: "நீங்கள் தேடிய பாதை எங்கள் பின்னலில் இல்லை.",
     home: "முகப்புக்கு திரும்பு",
   },
+  registration: {
+    title: "உங்கள் சுயவிவரத்தை முடிக்கவும்",
+    subtitle: "நீங்கள் பற்றி சொல்லுங்கள். இது உங்கள் சரியான ஜோடியை கண்டுபிடிக்க உதவுகிறது.",
+    breadcrumb: "{total} இல் {current} படி",
+    // Basic Info
+    firstName: "முதல் பெயர்",
+    lastName: "கடைசி பெயர்",
+    gender: "性",
+    dateOfBirth: "பிறந்த தேதி",
+    bride: "மணமகள்",
+    groom: "மணமகன்",
+    // Physical
+    height: "உயரம்",
+    heightPlaceholder: "எ.கா., 5'10\" அல்லது 178 செ.மீ",
+    // Location
+    city: "நகரம்",
+    district: "மாவட்டம்",
+    state: "மாநிலம்",
+    country: "நாடு",
+    // Professional
+    education: "கல்வி",
+    profession: "வேலை",
+    salary: "வருடாந்திர சம்பள வரம்",
+    educationOptions: {
+      diploma: "டிப்ளோமா",
+      bachelors: "பட்டப்படிப்பு",
+      masters: "முனைவர் பட்டம்",
+      phd: "博士学位",
+      professional: "தொழிலாய பட்டம்",
+    },
+    salaryOptions: {
+      below: "25 லட்சத்திற்கு கீழ்",
+      medium: "25L - 50L",
+      high: "50L - 1Cr",
+      veryHigh: "1 கோடிக்கு மேல்",
+    },
+    // Community
+    community: "சமூகம்",
+    // Contact
+    email: "மின்னஞ்சல் முகவரி",
+    phoneNumber: "தொலைபேசி எண்",
+    // Personal
+    aboutMe: "என்னைப் பற்றி",
+    aboutMePlaceholder: "10-500 எழுத்துக்களில் உங்களைப் பற்றி சொல்லுங்கள்...",
+    // Family
+    fatherName: "தந்தையின் பெயர்",
+    motherName: "தாயின் பெயர்",
+    brothers: "சகோதரர்களின் எண்ணிக்கை",
+    sisters: "சகோதரிகளின் எண்ணிக்கை",
+    familyStatus: "குடும்ப நிலை",
+    familyValues: "குடும்ப மதிப்புகள்",
+    // Expectations
+    expectation: "கூட்டாளிப் பொருத்தங்கள்",
+    expectationAge: "வயது வரம்",
+    expectationHeight: "உயரம் விருப்பம்",
+    expectationEducation: "கல்வி விருப்பம்",
+    expectationProfession: "தொழில் விருப்பம்",
+    expectationCommunity: "அதே சமூகம் விரும்பத்தக்கது",
+    expectationMin: "குறைந்தபட்சம்",
+    expectationMax: "அதிகபட்சம்",
+    // Agreement
+    agreedToTerms: "நான் விதிமுறைகள் மற்றும் நிபந்தனைகளை ஒப்புக்கொள்கிறேன்",
+    agreedToPrivacy: "நான் தனியுரிமைக் கொள்கையை ஒப்புக்கொள்கிறேன்",
+    // Actions
+    next: "அடுத்து",
+    previous: "முந்தையது",
+    submit: "பதிவை முடிக்கவும்",
+    submitting: "சமர்ப்பிக்கிறது...",
+    cancel: "ரத்து செய்",
+    // Messages
+    required: "இந்த வயல் அவசியம்",
+    loading: "ஏற்றுகிறது...",
+    success: "சுயவிவரம் வெற்றிகரமாக உருவாக்கப்பட்டது!",
+    error: "பதிவை முடிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+  },
 };

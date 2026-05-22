@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { motion } from "framer-motion";
 import { Heart, Loader2, Mail, User as UserIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -8,22 +8,38 @@ import { useServerFn } from "@tanstack/react-start";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { OtpModal } from "@/components/OtpModal";
-import { sendOtp } from "@/lib/auth.functions";
+import { RegistrationForm } from "@/components/RegistrationForm";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Import server functions
+import { registerUser as registerUserFn } from "@/lib/registration.server";
 
 export const Route = createFileRoute("/register")({
   head: () => ({ meta: [{ title: "Register Free — Chettiar Connect" }] }),
-  component: RegisterPage,
+  component: RegisterPageWrapper,
 });
+
+function RegisterPageWrapper() {
+  return (
+    <Suspense fallback={<RegisterPageSkeleton />}>
+      <RegisterPage />
+    </Suspense>
+  );
+}
 
 function RegisterPage() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [sending, setSending] = useState(false);
   const [otpOpen, setOtpOpen] = useState(false);
-  const sendOtpFn = useServerFn(sendOtp);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [verifiedEmail, setVerifiedEmail] = useState("");
+  const [verifiedName, setVerifiedName] = useState("");
+
+  const registerUserServerFn = useServerFn(registerUserFn);
   const navigate = useNavigate();
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const handleInitialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = z.string().email().safeParse(email.trim().toLowerCase());
     if (!parsed.success || name.trim().length < 2) {
@@ -32,19 +48,91 @@ function RegisterPage() {
     }
     setSending(true);
     try {
-      await sendOtpFn({ data: { email: parsed.data } });
+      // Send OTP via fetch API
+      const response = await fetch("/api/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: parsed.data,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to send verification code");
+      }
+
       if (typeof window !== "undefined") {
         sessionStorage.setItem("cc:pending_name", name.trim());
       }
       toast.success("Code sent — check your inbox");
       setOtpOpen(true);
     } catch (err) {
+      console.error("[register] OTP send error:", err);
       toast.error(err instanceof Error ? err.message : "Failed to send code");
     } finally {
       setSending(false);
     }
   };
 
+  const handleOtpVerified = (user: any, session: any) => {
+    if (session && user) {
+      setOtpVerified(true);
+      setVerifiedEmail(user.email || email.trim().toLowerCase());
+      setVerifiedName(name.trim());
+      setOtpOpen(false);
+      toast.success("Email verified! Now complete your profile.");
+    } else {
+      toast.error("Verification failed");
+    }
+  };
+
+  const handleRegistrationSubmit = async (data: any) => {
+    try {
+      const result = await registerUserServerFn(data);
+      if (result.success) {
+        toast.success(result.message);
+        navigate({ to: "/dashboard" });
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to complete registration";
+      toast.error(message);
+      throw error;
+    }
+  };
+
+  // Show registration form after OTP verification
+  if (otpVerified) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gradient-cream">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center px-4 py-20">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-2xl rounded-3xl bg-cream/90 backdrop-blur border border-gold/40 shadow-card p-8"
+          >
+            <RegistrationForm
+              onSuccess={() => {
+                navigate({ to: "/dashboard" });
+              }}
+              onSubmit={handleRegistrationSubmit}
+              language="en"
+            />
+          </motion.div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Show initial email/name form
   return (
     <div className="min-h-screen flex flex-col bg-gradient-cream">
       <Navbar />
@@ -64,7 +152,7 @@ function RegisterPage() {
             Free to join. Complete your profile after verification.
           </p>
 
-          <form onSubmit={onSubmit} className="mt-6 space-y-4">
+          <form onSubmit={handleInitialSubmit} className="mt-6 space-y-4">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-maroon mb-1.5">
                 Full name
@@ -124,11 +212,27 @@ function RegisterPage() {
         email={email.trim().toLowerCase()}
         open={otpOpen}
         onClose={() => setOtpOpen(false)}
-        onVerified={() => {
-          setOtpOpen(false);
-          navigate({ to: "/dashboard/profile" });
-        }}
+        onVerified={handleOtpVerified}
       />
+    </div>
+  );
+}
+
+function RegisterPageSkeleton() {
+  return (
+    <div className="min-h-screen flex flex-col bg-gradient-cream">
+      <Navbar />
+      <main className="flex-1 flex items-center justify-center px-4 pt-28 pb-16">
+        <div className="w-full max-w-md rounded-3xl bg-cream/90 backdrop-blur border border-gold/40 shadow-card p-8 space-y-4">
+          <Skeleton className="h-14 w-14 rounded-full mx-auto" />
+          <Skeleton className="h-8 w-48 mx-auto" />
+          <Skeleton className="h-4 w-64 mx-auto" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }

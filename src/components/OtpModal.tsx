@@ -3,14 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Mail, X } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
-import { sendOtp } from "@/lib/auth.functions";
+import { sendOtp, verifyOtpAndSignIn } from "@/lib/auth.functions";
 
 interface Props {
   email: string;
   open: boolean;
   onClose: () => void;
-  onVerified: () => void;
+  onVerified: (user: any, session: any) => void;
 }
 
 const OTP_LENGTH = 6;
@@ -20,15 +19,16 @@ export function OtpModal({ email, open, onClose, onVerified }: Props) {
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
   const [cooldown, setCooldown] = useState(30);
-  const [expiresIn, setExpiresIn] = useState(300);
+  const [expiresIn, setExpiresIn] = useState(600); // 10 minutes
   const inputs = useRef<Array<HTMLInputElement | null>>([]);
   const sendOtpFn = useServerFn(sendOtp);
+  const verifyOtpFn = useServerFn(verifyOtpAndSignIn);
 
   useEffect(() => {
     if (!open) return;
     setDigits(Array(OTP_LENGTH).fill(""));
     setCooldown(30);
-    setExpiresIn(300);
+    setExpiresIn(600);
     setTimeout(() => inputs.current[0]?.focus(), 100);
   }, [open]);
 
@@ -68,26 +68,36 @@ export function OtpModal({ email, open, onClose, onVerified }: Props) {
       return;
     }
     setVerifying(true);
-    const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
-    setVerifying(false);
-    if (error) {
-      toast.error(error.message || "Invalid or expired code");
+    try {
+      const result = await verifyOtpFn({
+        email,
+        otp: token,
+      });
+
+      if (result.success && result.session) {
+        toast.success(result.message || "Welcome to Chettiar Connect");
+        onVerified(result.user, result.session);
+      } else {
+        throw new Error(result.message || "Verification failed");
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Verification failed";
+      toast.error(message);
       setDigits(Array(OTP_LENGTH).fill(""));
       inputs.current[0]?.focus();
-      return;
+    } finally {
+      setVerifying(false);
     }
-    toast.success("Welcome to Chettiar Connect");
-    onVerified();
   };
 
   const resend = async () => {
     if (cooldown > 0) return;
     setResending(true);
     try {
-      await sendOtpFn({ data: { email } });
+      await sendOtpFn({ email });
       toast.success("New code sent");
       setCooldown(30);
-      setExpiresIn(300);
+      setExpiresIn(600);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to resend");
     } finally {

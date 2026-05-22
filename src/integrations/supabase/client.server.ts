@@ -4,28 +4,50 @@
 // For user-authenticated queries (with RLS), use the auth middleware instead.
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
+import { envServer, isServerEnvValid, getServerEnvErrors, validateServerEnv } from './env';
 
 function createSupabaseAdminClient() {
-  const SUPABASE_URL = process.env.SUPABASE_URL;
-  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    const missing = [
-      ...(!SUPABASE_URL ? ['SUPABASE_URL'] : []),
-      ...(!SUPABASE_SERVICE_ROLE_KEY ? ['SUPABASE_SERVICE_ROLE_KEY'] : []),
-    ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Connect Supabase in Lovable Cloud.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+  // Validate server environment
+  validateServerEnv();
+  
+  if (!isServerEnvValid()) {
+    const errors = getServerEnvErrors();
+    const message = `Missing Supabase server environment variable(s): ${errors.join(', ')}`;
+    console.error(`[Supabase Admin] ${message}`);
+    
+    // Return a mock client that throws errors on use
+    // This prevents server crash while still providing useful error messages
+    return createMockAdminClient(message);
   }
 
-  return createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-    auth: {
-      storage: undefined,
-      persistSession: false,
-      autoRefreshToken: false,
+  return createClient<Database>(
+    envServer.supabaseUrl!,
+    envServer.supabaseServiceRoleKey!,
+    {
+      auth: {
+        storage: undefined,
+        persistSession: false,
+        autoRefreshToken: false,
+      }
     }
-  });
+  );
+}
+
+/**
+ * Mock admin client that throws helpful errors when used
+ * Prevents server crashes while providing feedback about missing env vars
+ */
+function createMockAdminClient(message: string) {
+  const handler = {
+    get() {
+      throw new Error(
+        `${message}. ` +
+        'Supabase server is not configured. Server operations will fail.'
+      );
+    }
+  };
+  
+  return new Proxy({}, handler) as any;
 }
 
 let _supabaseAdmin: ReturnType<typeof createSupabaseAdminClient> | undefined;
