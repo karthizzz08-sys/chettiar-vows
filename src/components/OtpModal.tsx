@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Mail, X } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { sendOtp, verifyOtpAndSignIn } from "@/lib/auth.functions";
+import { sendOtp } from "@/lib/auth.functions";
 
 interface Props {
   email: string;
@@ -23,7 +23,6 @@ export function OtpModal({ email, name, open, onClose, onVerified }: Props) {
   const [expiresIn, setExpiresIn] = useState(300); // 5 minutes (OTP now expires in 5min)
   const inputs = useRef<Array<HTMLInputElement | null>>([]);
   const sendOtpFn = useServerFn(sendOtp);
-  const verifyOtpFn = useServerFn(verifyOtpAndSignIn);
 
   useEffect(() => {
     if (!open) return;
@@ -70,19 +69,39 @@ export function OtpModal({ email, name, open, onClose, onVerified }: Props) {
     }
     setVerifying(true);
     try {
-      const result = await verifyOtpFn({
-        email,
-        otp: token,
+      console.log("[OtpModal] Verifying OTP...", { email });
+      
+      // Use fetch API to call /api/verify-otp
+      const response = await fetch("/api/verify-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          otp: token,
+        }),
       });
 
-      if (result.success && result.session) {
-        toast.success(result.message || "Welcome to Chettiar Connect");
-        onVerified(result.user, result.session);
+      console.log("[OtpModal] API response status:", response.status);
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Verification failed");
+      }
+
+      const result = await response.json();
+      console.log("[OtpModal] Verification successful:", { user: result.user });
+
+      if (result.success && result.user) {
+        toast.success(result.message || "Email verified! Complete your profile.");
+        onVerified(result.user, result.session || null);
       } else {
         throw new Error(result.message || "Verification failed");
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Verification failed";
+      console.error("[OtpModal] Verification error:", message);
       toast.error(message);
       setDigits(Array(OTP_LENGTH).fill(""));
       inputs.current[0]?.focus();

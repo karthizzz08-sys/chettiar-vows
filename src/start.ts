@@ -2,6 +2,20 @@ import { createStart, createMiddleware } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
+import { validateServerEnv, isServerEnvValid } from "@/integrations/supabase/env.server";
+
+// Log environment status when server routes are accessed
+// (not on startup, to allow Vite time to load .env)
+const envLoggingMiddleware = createMiddleware().server(async ({ next }) => {
+  // Check environment once per request (cached internally)
+  if (!isServerEnvValid()) {
+    console.warn(
+      "[App] ⚠️  Some required environment variables are missing. " +
+      "API routes may fail. Run 'npm run dev' again after adding env vars to .env"
+    );
+  }
+  return await next();
+});
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
@@ -19,6 +33,6 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
 });
 
 export const startInstance = createStart(() => ({
-  requestMiddleware: [errorMiddleware],
+  requestMiddleware: [envLoggingMiddleware, errorMiddleware],
   functionMiddleware: [attachSupabaseAuth],
 }));

@@ -18,39 +18,78 @@ export const envServer = {
 
 /**
  * Validate server environment on first access
+ * Uses lazy initialization to ensure env vars are loaded
  */
 let serverValidated = false;
 const serverErrors: string[] = [];
+const serverWarnings: string[] = [];
 
-export function validateServerEnv() {
+function validateServerEnvOnce() {
   if (serverValidated) return;
 
   serverErrors.length = 0; // Clear previous errors
+  serverWarnings.length = 0; // Clear previous warnings
+
+  // Re-read environment variables fresh (lazy evaluation)
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const roleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const brevoKey = process.env.BREVO_API_KEY;
 
   // Supabase URL is required
-  if (!envServer.supabaseUrl) {
+  if (!url) {
     serverErrors.push(
       "SUPABASE_URL - Required for server-side operations. " +
       "Add to .env: SUPABASE_URL=https://your-project.supabase.co"
     );
   }
 
+  // Supabase Service Role Key is CRITICAL for OTP verification and user creation
+  if (!roleKey) {
+    serverErrors.push(
+      "SUPABASE_SERVICE_ROLE_KEY - REQUIRED for OTP verification and user creation. " +
+      "Get it from Supabase dashboard: Project Settings → API → service_role key. " +
+      "Add to .env: SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi..."
+    );
+  }
+
   // Brevo API key is required for email sending
-  if (!envServer.brevoApiKey) {
+  if (!brevoKey) {
     serverErrors.push(
       "BREVO_API_KEY - Required for sending OTP emails. " +
-      "Add to .env: BREVO_API_KEY=your_brevo_api_key"
+      "Add to .env: BREVO_API_KEY=xkeysib-..."
+    );
+  }
+
+  if (!process.env.BREVO_SENDER_EMAIL) {
+    serverWarnings.push(
+      "BREVO_SENDER_EMAIL - Using default noreply@chettiarconnect.com. " +
+      "Set in .env for custom sender email."
     );
   }
 
   if (serverErrors.length > 0) {
     console.error(
-      "[Supabase Server] Environment validation failed:\n" +
-      serverErrors.map(e => `  - ${e}`).join("\n")
+      "[Supabase Server] ❌ Environment validation FAILED:\n" +
+      serverErrors.map(e => `  ✗ ${e}`).join("\n")
     );
   }
 
+  if (serverWarnings.length > 0) {
+    console.warn(
+      "[Supabase Server] ⚠️  Warnings:\n" +
+      serverWarnings.map(w => `  ⚠️  ${w}`).join("\n")
+    );
+  }
+
+  if (serverErrors.length === 0) {
+    console.log("[Supabase Server] ✅ All required environment variables configured");
+  }
+
   serverValidated = true;
+}
+
+export function validateServerEnv() {
+  validateServerEnvOnce();
 }
 
 /**
